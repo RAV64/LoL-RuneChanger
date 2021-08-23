@@ -1,6 +1,7 @@
 import asyncio
 import json
 import ssl
+import os
 
 import requests
 from requests.auth import HTTPBasicAuth
@@ -22,6 +23,8 @@ opts.headless = True
 
 with open("rune_data.json", "r") as f:
     RUNE_DICT = json.load(f)
+
+os.system("clear")
 
 
 class runechanger:
@@ -50,6 +53,7 @@ class runechanger:
         self.runes = {"primary_runes": None,
                       "secondary_runes": None,
                       "fragments": None}
+        print("LoL RuneChanger is active!")
 
     async def listener(self):
         async with websockets.connect(self.url, ssl=self.ssl_context) as websocket:
@@ -60,7 +64,7 @@ class runechanger:
                     response = json.loads(resp)
                     if response[2]['eventType'] == "Update":
                         self.__parse_response(response)
-                        
+
                         try:
                             champ_name = self.__get_champ_name()[1]
                         except:
@@ -145,7 +149,7 @@ class runechanger:
 
     @staticmethod
     def __get_rune_id(rune, prefix="", suffix=""):
-        
+
         rune_name = rune.find("img")["alt"] \
             .replace(f"{prefix}", "") \
             .replace(" ", "") \
@@ -180,6 +184,7 @@ class runechanger:
         url_champs = f"https://raw.communitydragon.org/latest/plugins/rcp-be-lol-game-data/global/default/v1/champions/{self.champ_id}.json"
         r = requests.get(url_champs).json()
         return r["name"], r["alias"]
+
 
 rc = runechanger()
 with webdriver.Firefox(options=opts) as driver:
