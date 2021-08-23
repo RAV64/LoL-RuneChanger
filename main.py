@@ -19,7 +19,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 
 opts = Options()
-opts.headless = True
+opts.headless = False
 
 with open("rune_data.json", "r") as f:
     RUNE_DICT = json.load(f)
@@ -73,11 +73,12 @@ class runechanger:
                         if self.new_champ != (champ_name, self.assigned_role):
                             self.new_champ = (champ_name, self.assigned_role)
                             self.__prepare_driver(champ_name.lower())
-                        if self.is_final_pick:
-                            self.scrapeUGG()
-                            self.set_runes()
 
-    def set_runes(self):
+                        if self.is_final_pick:
+                            self.__scrapeUGG()
+                            self.__set_runes()
+
+    def __set_runes(self):
         base_url = f"{self.scheme}://127.0.0.1:{self.port}"
         auth_header = HTTPBasicAuth('riot', self.password)
         page_id = self.__get_page_id(base_url, auth_header)["id"]
@@ -99,8 +100,21 @@ class runechanger:
         r = requests.get(url, verify=False, auth=auth_header)
         return r.json()
 
+    def __clean_role(self, role):
+        if role.startswith("t"):
+            self.assigned_role = "top"
+        elif role.startswith("j"):
+            self.assigned_role = "jungle"
+        elif role.startswith("m"):
+            self.assigned_role = "mid"
+        elif role.startswith("b"):
+            self.assigned_role = "bot"
+        else:
+            self.assigned_role = "support"
+
     def __prepare_driver(self, champ_name):
         if self.assigned_role:
+            self.__clean_role(self.assigned_role.lower())
             url = f"https://u.gg/lol/champions/{champ_name}/build?rank=diamond_2_plus&role={self.assigned_role}"
             self.role_or_aram = self.assigned_role
         else:
@@ -111,7 +125,7 @@ class runechanger:
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
             (By.XPATH, "//*[@id='content']/div/div[1]/div/div/div[5]/div/div[2]/div[1]/div[2]/div[1]/div[1]/div")))
 
-    def scrapeUGG(self, champ_name="neeko"):
+    def __scrapeUGG(self):
         page = driver.page_source
         soup = bs(page, 'html.parser')
 
