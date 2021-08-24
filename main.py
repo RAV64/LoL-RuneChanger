@@ -39,6 +39,7 @@ class runechanger:
 
         items_url = "https://ddragon.leagueoflegends.com/cdn/11.16.1/data/en_US/item.json"
         self.items_res = requests.get(items_url).json()
+        self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11.5; rv:86.0) Gecko/20100101 Firefox/86.0'}
 
         self.phase = None
         self.champ_id = None
@@ -209,7 +210,6 @@ class runechanger:
             items_url = f"https://www.leagueofgraphs.com/champions/items/{champ_name}/diamond/aram"
             self.role_or_aram = "Aram"
 
-        driver.switch_to.window(driver.window_handles[0])
         driver.get(url)
         WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
             (By.XPATH, "//*[@id='content']/div/div[1]/div/div/div[5]/div/div[2]/div[1]/div[2]/div[1]/div[1]/div")))
@@ -220,10 +220,8 @@ class runechanger:
             WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
                 (By.XPATH, "//*[@id='content']/div/div[1]/div/div/div[5]/div/div[2]/div[1]/div[2]/div[1]/div[1]/div")))
 
-        driver.switch_to.window(driver.window_handles[1])
-        driver.get(items_url)
-        WebDriverWait(driver, 20).until(EC.visibility_of_element_located(
-            (By.XPATH, "//*[@id='topItemsTable']/tbody/tr[2]/td[1]/img")))
+        self.items_response = requests.get(items_url, headers=self.headers).content.decode()
+
 
     def __scrape_items(self):
 
@@ -231,8 +229,7 @@ class runechanger:
         self.starting_items = []
         self.core_items = []
 
-        driver.switch_to.window(driver.window_handles[1])
-        soup = bs(driver.page_source, 'html.parser')
+        soup = bs(self.items_response, 'html.parser')
         table = soup.find_all("table", {"class": "data_table sortable_table"})
         trs = table[3].find_all("tr")
         for i, tr in enumerate(trs):
@@ -364,8 +361,7 @@ class runechanger:
         for i, item in enumerate(self.items):
             print(f"\t{i+1}. {item}")
 
-
-rc = runechanger()
 with webdriver.Firefox(options=opts) as driver:
-    driver.execute_script("window.open('about:blank', 'tab2');")
+    driver.get("https://u.gg/lol/champions/neeko/build")
+    rc = runechanger()
     rc.listener()
