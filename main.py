@@ -27,8 +27,12 @@ class runechanger:
             self.out = "C:\Riot Games\League of Legends/lockfile"
         else:
             self.out = "/Applications/League of Legends.app/Contents/LoL/lockfile"
-        with open(self.out, 'r') as f:
-            data = f.readline().strip().split(":")
+        try:
+            with open(self.out, 'r') as f:
+                data = f.readline().strip().split(":")
+        except:
+            print("Please make sure your LoL client is open.")
+            exit()
         self.port = data[2]
         self.password = data[3]
         self.scheme = data[4]
@@ -54,9 +58,14 @@ class runechanger:
         self.runes = {"primary_runes": None,
                       "secondary_runes": None,
                       "fragments": None}
-        print("LoL RuneChanger started up successfully.")
 
     def listener(self):
+        print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+        print("------------------------------------------")
+        print(" https://github.com/RAV64/LoL-RuneChanger ")
+        print("------------------------------------------")
+        print("LoL RuneChanger started up successfully.")
+        print("CTRL + C to close the program.\n")
         while True:
             # Client open, not in champselect
             page = requests.get(f"{self.base_url}/lol-champ-select/v1/session",
@@ -360,8 +369,13 @@ class runechanger:
         print(f"\nMost common items: \n")
         for i, item in enumerate(self.items):
             print(f"\t{i+1}. {item}")
+            
+        print("\nCTRL + C to close the program.")
 
-with webdriver.Firefox(options=opts) as driver:
-    driver.get("https://u.gg/lol/champions/neeko/build")
-    rc = runechanger()
-    rc.listener()
+try:
+    with webdriver.Firefox(options=opts) as driver:
+        driver.get("https://u.gg/lol/champions/neeko/build")
+        rc = runechanger()
+        rc.listener()
+except KeyboardInterrupt as e:
+    print("Shutting down.")
