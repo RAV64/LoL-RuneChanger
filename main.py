@@ -40,21 +40,10 @@ class runechanger:
         self.url = f"wss://riot:{self.password}@127.0.0.1:{str(self.port)}"
         self.base_url = f"{self.scheme}://127.0.0.1:{self.port}"
         self.auth_header = HTTPBasicAuth('riot', self.password)
-
-        items_url = "https://ddragon.leagueoflegends.com/cdn/11.16.1/data/en_US/item.json"
-        self.items_res = requests.get(items_url).json()
+        self.items_res = requests.get("https://ddragon.leagueoflegends.com/cdn/11.16.1/data/en_US/item.json").json()
         self.headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 11.5; rv:86.0) Gecko/20100101 Firefox/86.0'}
 
-        self.phase = None
-        self.champ_id = None
-        self.assigned_role = None
-        self.is_final_pick = None
         self.new_champ = (None, None)
-        self.role_or_aram = None
-        self.skill_order = None
-        self.summoner_id = None
-        self.items = []
-        self.starting_items = []
         self.runes = {"primary_runes": None,
                       "secondary_runes": None,
                       "fragments": None}
